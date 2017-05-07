@@ -32,6 +32,7 @@ var connector = new builder.ChatConnector({
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 
+var bot = new builder.UniversalBot(connector);
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
 
@@ -80,10 +81,12 @@ var instance = [];
 //=========================================================
 
 //the very first dialog for the bot!
-var bot = new builder.UniversalBot(connector, function(session) {
-    session.send("Hey! EC2 Bot here...");
-    session.beginDialog('help');
-});
+bot.dialog('/', [
+    function(session) {
+		session.send("Hey! EC2 Bot here...");
+		session.beginDialog('help');
+		}
+]);
 
 //Dialog when user types Help or Back
 bot.dialog('help', [
