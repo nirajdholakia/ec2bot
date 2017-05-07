@@ -6,7 +6,7 @@ service and also provide best instance information for a given user configuratio
 
     Run the bot from the command line using "node app.js" and then type 
     "hello" to wake the bot up.
-    
+    The bot is to be deployed on azure so as to get it on skype
 -----------------------------------------------------------------------------*/
 var restify = require('restify');
 var builder = require('botbuilder');
@@ -275,7 +275,7 @@ bot.dialog('summary', [
     function(session, args) {
         //http getting instance and price based on budget, os, duration & pricing model
         session.send("Got it... Your Budget is $" + session.userData.budget +
-            " using a" + session.userData.pricingmodel + " " + session.userData.os + " instance with " + session.userData.memory + "  GB memory" + " for time  " + session.userData.duration + " hours");
+            " using a '" + session.userData.pricingmodel + "' " + session.userData.os + " instance with " + session.userData.memory + "  GB memory" + " for time  " + session.userData.duration + " hours");
         var options = {
             host: 'ec2-54-245-141-112.us-west-2.compute.amazonaws.com',
             port: 8080,

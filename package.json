@@ -13,5 +13,16 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Niraj",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nirajdholakia/ec2bot.git"
+  },
+  "keywords": [
+    "ec2bot"
+  ],
+  "bugs": {
+    "url": "https://github.com/nirajdholakia/ec2bot/issues"
+  },
+  "homepage": "https://github.com/nirajdholakia/ec2bot#readme"
 }
