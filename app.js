@@ -63,7 +63,7 @@ var recognizer = new cognitiveservices.QnAMakerRecognizer({
 
 var BasicQnAMakerDialog = new cognitiveservices.QnAMakerDialog({
     recognizers: [recognizer],
-    defaultMessage: 'Hey! I will answer any questions about Amazon EC',
+    defaultMessage: 'Hey! I will answer any questions about Amazon EC2',
     qnaThreshold: 0.5
 });
 //=========================================================
@@ -72,6 +72,7 @@ var BasicQnAMakerDialog = new cognitiveservices.QnAMakerDialog({
 var inHours = false;
 var inDays = false;
 var inYear = false;
+var fromNoMatch = true;
 var a = [];
 var b = [];
 var instance = [];
@@ -340,7 +341,7 @@ bot.dialog('summary', [
         builder.Prompts.choice(session, "Is the information correct?", ["Yes", "No"]);
     },
     function(session, results) {
-        if (results.response.entity.toLowerCase() == "yes") {
+        if (results.response.entity.toLowerCase() == "Yes") {
             session.beginDialog('calculator');
         } else {
             session.userData = {};
@@ -373,21 +374,15 @@ bot.dialog('calculator1', [
         }
         if (!body) {
             session.send("Sorry! There are no EC2 instances matching your requirements. Try something with a different configuration");
-            session.userData = {};
-            inHours = false;
-            inDays = false;
-            inYear = false;
-            a = [];
-            b = [];
-            instance = [];
-            session.beginDialog('estimator');
+            fromNoMatch = true;
+			session.beginDialog('wipeUserData');            
         } else {
             session.send("Suitable instances matching your requirements are- \n\n" + body);
             builder.Prompts.choice(session, "You can type info to know more about EC2. Are you done with the Estimation?", ["Yes", "No"]);
         }
     },
     function(session, results) {
-        if (results.response.entity.toLowerCase() == "yes") {
+        if (results.response.entity.toLowerCase() == "Yes") {
             session.beginDialog('wipeUserData');
         } else {
             session.userData = {};
@@ -405,7 +400,18 @@ bot.dialog('calculator1', [
 //Dialog when user says Quit or when Estimation task is completed
 bot.dialog('wipeUserData', [
     function(session, args) {
+		if(fromNoMatch == true){
         session.userData = {};
+        inHours = false;
+        inDays = false;
+        inYear = false;
+		fromNoMatch = false;
+        a = [];
+        b = [];
+        instance = [];
+		session.beginDialog('estimator');
+		}else{
+		session.userData = {};
         inHours = false;
         inDays = false;
         inYear = false;
@@ -413,6 +419,7 @@ bot.dialog('wipeUserData', [
         b = [];
         instance = [];
         session.endDialog("Thank you for using Amazon EC2 Bot, see you until nexttime...");
+		}
     }
 ]).triggerAction({
     matches: /quit|exit|goodbye|bye/i
