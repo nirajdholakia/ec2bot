@@ -83,9 +83,9 @@ var instance = [];
 //the very first dialog for the bot!
 bot.dialog('/', [
     function(session) {
-		session.send("Hey! EC2 Bot here...");
-		session.beginDialog('help');
-		}
+        session.send("Hey! EC2 Bot here...");
+        session.beginDialog('help');
+    }
 ]);
 
 //Dialog when user types Help or Back
@@ -149,14 +149,22 @@ bot.dialog('queryA1', [
         }
     },
     function(session, results) {
-        if (inHours) {
-            session.userData.duration = results.response;
-        } else if (inDays) {
-            session.userData.duration = results.response * 24;
-        } else if (inYear) {
-            session.userData.duration = results.response * 8760;
+        if (results.response == 0) {
+            session.send("The duration cannot be zero. Lets try again");
+            inHours = false;
+            inDays = false;
+            inYear = false;
+            session.beginDialog('estimator');
+        } else {
+            if (inHours) {
+                session.userData.duration = results.response;
+            } else if (inDays) {
+                session.userData.duration = results.response * 24;
+            } else if (inYear) {
+                session.userData.duration = results.response * 8760;
+            }
+            builder.Prompts.choice(session, "Operating System of the instances is...", ["windows", "linux"]);
         }
-        builder.Prompts.choice(session, "Operating System of the instances is...", ["windows", "linux"]);
     },
     function(session, results) {
         session.userData.os = results.response.entity;
@@ -190,14 +198,22 @@ bot.dialog('queryA2', [
         }
     },
     function(session, results) {
-        if (inHours) {
-            session.userData.duration = results.response;
-        } else if (inDays) {
-            session.userData.duration = results.response * 24;
-        } else if (inYear) {
-            session.userData.duration = results.response * 8760;
+        if (results.response == 0) {
+            session.send("The duration cannot be zero. Lets try again");
+            inHours = false;
+            inDays = false;
+            inYear = false;
+            session.beginDialog('estimator');
+        } else {
+            if (inHours) {
+                session.userData.duration = results.response;
+            } else if (inDays) {
+                session.userData.duration = results.response * 24;
+            } else if (inYear) {
+                session.userData.duration = results.response * 8760;
+            }
+            builder.Prompts.choice(session, "Operating System of the instances is...", ["windows", "linux"]);
         }
-        builder.Prompts.choice(session, "Operating System of the instances is...", ["windows", "linux"]);
     },
     function(session, results) {
         session.userData.os = results.response.entity;
@@ -227,14 +243,22 @@ bot.dialog('queryA', [
         }
     },
     function(session, results) {
-        if (inHours) {
-            session.userData.duration = results.response;
-        } else if (inDays) {
-            session.userData.duration = results.response * 24;
-        } else if (inYear) {
-            session.userData.duration = results.response * 8760;
+        if (results.response == 0) {
+            session.send("The duration cannot be zero. Lets try again");
+            inHours = false;
+            inDays = false;
+            inYear = false;
+            session.beginDialog('estimator');
+        } else {
+            if (inHours) {
+                session.userData.duration = results.response;
+            } else if (inDays) {
+                session.userData.duration = results.response * 24;
+            } else if (inYear) {
+                session.userData.duration = results.response * 8760;
+            }
+            builder.Prompts.choice(session, "Operating System of the instances is...", ["windows", "linux"]);
         }
-        builder.Prompts.choice(session, "Operating System of the instances is...", ["windows", "linux"]);
     },
     function(session, results) {
         session.userData.os = results.response.entity;
@@ -343,13 +367,24 @@ bot.dialog('calculator1', [
     function(session) {
         var result = intersect(b, instance);
         console.log(result);
-        //var result = intersect(b, instance); 
         var body = '';
         for (var k in result) {
-            body += " " + result[k] + " with price $" + (a[result[k]] * session.userData.duration).toFixed(2) + ", \n\n";
+            body += " " + result[k] + " with price $" + (a[result[k]] * session.userData.duration).toFixed(2) + ",\n\n";
         }
-        session.send("Suitable instances matching your requirements are- \n\n" + body);
-        builder.Prompts.choice(session, "You can type info to know more about EC2. Are you done with the Estimation?", ["Yes", "No"]);
+        if (!body) {
+            session.send("Sorry! There are no EC2 instances matching your requirements. Try something with a different configuration");
+            session.userData = {};
+            inHours = false;
+            inDays = false;
+            inYear = false;
+            a = [];
+            b = [];
+            instance = [];
+            session.beginDialog('estimator');
+        } else {
+            session.send("Suitable instances matching your requirements are- \n\n" + body);
+            builder.Prompts.choice(session, "You can type info to know more about EC2. Are you done with the Estimation?", ["Yes", "No"]);
+        }
     },
     function(session, results) {
         if (results.response.entity.toLowerCase() == "yes") {
