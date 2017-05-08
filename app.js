@@ -72,7 +72,7 @@ var BasicQnAMakerDialog = new cognitiveservices.QnAMakerDialog({
 var inHours = false;
 var inDays = false;
 var inYear = false;
-var fromNoMatch = true;
+var fromNoMatch = false;
 var a = [];
 var b = [];
 var instance = [];
@@ -341,13 +341,14 @@ bot.dialog('summary', [
         builder.Prompts.choice(session, "Is the information correct?", ["Yes", "No"]);
     },
     function(session, results) {
-        if (results.response.entity.toLowerCase() == "Yes") {
+        if (results.response.entity.toLowerCase() == "yes") {
             session.beginDialog('calculator');
         } else {
             session.userData = {};
             inHours = false;
             inDays = false;
             inYear = false;
+			fromNoMatch = false;
             a = [];
             b = [];
             instance = [];
@@ -375,24 +376,29 @@ bot.dialog('calculator1', [
         if (!body) {
             session.send("Sorry! There are no EC2 instances matching your requirements. Try something with a different configuration");
             fromNoMatch = true;
-			session.beginDialog('wipeUserData');            
+            session.beginDialog('wipeUserData');
         } else {
             session.send("Suitable instances matching your requirements are- \n\n" + body);
             builder.Prompts.choice(session, "You can type info to know more about EC2. Are you done with the Estimation?", ["Yes", "No"]);
         }
     },
     function(session, results) {
-        if (results.response.entity.toLowerCase() == "Yes") {
-            session.beginDialog('wipeUserData');
+        if (!results.response.entity) {
+            session.endDialog("Bye!");
         } else {
-            session.userData = {};
-            inHours = false;
-            inDays = false;
-            inYear = false;
-            a = [];
-            b = [];
-            instance = [];
-            session.beginDialog('estimator');
+            if (results.response.entity.toLowerCase() == "yes") {
+                session.beginDialog('wipeUserData');
+            } else {
+                session.userData = {};
+                inHours = false;
+                inDays = false;
+                inYear = false;
+				fromNoMatch = false;
+                a = [];
+                b = [];
+                instance = [];
+                session.beginDialog('estimator');
+            }
         }
     }
 ]);
@@ -400,26 +406,27 @@ bot.dialog('calculator1', [
 //Dialog when user says Quit or when Estimation task is completed
 bot.dialog('wipeUserData', [
     function(session, args) {
-		if(fromNoMatch == true){
-        session.userData = {};
-        inHours = false;
-        inDays = false;
-        inYear = false;
-		fromNoMatch = false;
-        a = [];
-        b = [];
-        instance = [];
-		session.beginDialog('estimator');
-		}else{
-		session.userData = {};
-        inHours = false;
-        inDays = false;
-        inYear = false;
-        a = [];
-        b = [];
-        instance = [];
-        session.endDialog("Thank you for using Amazon EC2 Bot, see you until nexttime...");
-		}
+        if (fromNoMatch == true) {
+            session.userData = {};
+            inHours = false;
+            inDays = false;
+            inYear = false;
+            fromNoMatch = false;
+            a = [];
+            b = [];
+            instance = [];
+            session.beginDialog('estimator');
+        } else {
+            session.userData = {};
+            inHours = false;
+            inDays = false;
+            inYear = false;
+			fromNoMatch = false;
+            a = [];
+            b = [];
+            instance = [];
+            session.endDialog("Thank you for using Amazon EC2 Bot, see you until nexttime...");
+        }
     }
 ]).triggerAction({
     matches: /quit|exit|goodbye|bye/i
