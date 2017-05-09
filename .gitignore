@@ -1,0 +1,11 @@
+.metadata/
+.recommenders/
+.settings/
+target/
+RemoteSystemsTempFiles/
+app/
+*.exe
+*.txt
+*.pem
+*.ppk
+report/
